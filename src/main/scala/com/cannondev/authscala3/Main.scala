@@ -9,11 +9,9 @@ import org.http4s.server.Router
 
 object Main extends IOApp:
 
-  def getConfig(): IO[DatabaseConfig] =
-    DbConfig.appConfig.load[IO]
-
   val myApp: IO[Unit] = for {
     cfg <- DbConfig.appConfig.load[IO]
+    
     service = new AuthService(cfg)
     httpServer <- IO.pure(service.start())
     _ <- httpServer
