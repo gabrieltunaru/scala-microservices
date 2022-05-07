@@ -23,7 +23,9 @@ lazy val root = (project in file("."))
       "io.circe" %% "circe-generic" % CirceVersion,
       "org.tpolecat" %% "skunk-core" % SkunkVersion,
       "is.cir" %% "ciris" % cirisVersion,
-      "is.cir" %% "ciris-refined" % cirisVersion
+      "is.cir" %% "ciris-refined" % cirisVersion,
+      "org.flywaydb" % "flyway-core" % "7.2.0",
+      "org.postgresql" % "postgresql" % "42.2.5"
     ),
     testFrameworks += new TestFramework("munit.Framework")
   )

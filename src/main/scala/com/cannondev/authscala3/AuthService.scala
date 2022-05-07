@@ -13,8 +13,6 @@ class AuthService(cfg: DatabaseConfig) {
     "/api" -> Authscala3Routes.registerRoute[IO]
   ).orNotFound
 
-  private val dbSession = DatabaseConnection.getSession(cfg)
-
   private def httpServer =
     BlazeServerBuilder[IO]
       .bindHttp(8080, "localhost")
@@ -25,7 +23,6 @@ class AuthService(cfg: DatabaseConfig) {
 
   def start(): IO[ExitCode] = {
     for {
-      _ <- DatabaseConnection.run(dbSession)
       httpS <- httpServer
     } yield httpS
   }
