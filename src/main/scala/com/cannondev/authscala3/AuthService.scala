@@ -1,13 +1,14 @@
 package com.cannondev.authscala3
 
-import cats.effect.{ExitCode, IO}
+import cats.effect.{ExitCode, IO, Resource}
 import com.cannondev.authscala3.config.DbConfig.{AppConfig, DatabaseConfig}
 import com.cannondev.authscala3.storage.DatabaseConnection
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.Router
 import org.slf4j.LoggerFactory
+import skunk.Session
 
-class AuthService(cfg: AppConfig) {
+class AuthService(val cfg: AppConfig)(implicit val session: Resource[IO, Session[IO]]) {
 
   private def logger = LoggerFactory.getLogger(this.getClass)
 

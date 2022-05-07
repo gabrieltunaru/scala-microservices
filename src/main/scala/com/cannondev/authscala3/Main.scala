@@ -18,7 +18,7 @@ object Main extends IOApp:
     _ <- DatabaseConnection.run(dbSession)
     _ <- DBMigration.migrate[IO](cfg.dbConfig)
 
-    service = new AuthService(cfg)
+    service = new AuthService(cfg)(dbSession)
     httpServer <- IO.pure(service.start())
     _ <- httpServer
   } yield ()

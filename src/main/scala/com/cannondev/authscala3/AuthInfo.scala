@@ -8,7 +8,7 @@ import org.http4s.{EntityDecoder, EntityEncoder}
 import org.http4s.circe.*
 
 trait AuthInfo[F[_]]:
-  def hello(n: AuthInfo.Info): F[AuthInfo.Info]
+  def hello(n: AuthInfo.User): F[AuthInfo.User]
 
 object AuthInfo:
   def apply[F[_]](using ev: AuthInfo[F]): AuthInfo[F] = ev
@@ -18,9 +18,9 @@ object AuthInfo:
     * your internal data structures, however this shows how you can
     * create encoders for your data.
     **/
-  case class Info(username: String, password: String)
+  case class User(username: String, password: String)
 
-  given Decoder[Info] = Decoder.derived[Info]
-  given [F[_]: Concurrent]: EntityDecoder[F, Info] = jsonOf
+  given Decoder[User] = Decoder.derived[User]
+  given [F[_]: Concurrent]: EntityDecoder[F, User] = jsonOf
 
 
