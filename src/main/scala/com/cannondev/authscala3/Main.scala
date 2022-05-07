@@ -14,9 +14,9 @@ object Main extends IOApp:
   val myApp: IO[Unit] = for {
     cfg <- DbConfig.appConfig.load[IO]
 
-    dbSession = DatabaseConnection.getSession(cfg)
+    dbSession = DatabaseConnection.getSession(cfg.dbConfig)
     _ <- DatabaseConnection.run(dbSession)
-    _ <- DBMigration.migrate[IO](cfg)
+    _ <- DBMigration.migrate[IO](cfg.dbConfig)
 
     service = new AuthService(cfg)
     httpServer <- IO.pure(service.start())
