@@ -6,6 +6,7 @@ import cats.effect.{IO, Resource, Sync}
 import cats.effect.kernel.Concurrent
 import cats.implicits.*
 import com.cannondev.authscala3.AuthInfo.User
+import com.cannondev.authscala3.config.DbConfig.AppConfig
 import com.cannondev.authscala3.errors.{UserNotFound, WrongPassword}
 import com.cannondev.authscala3.storage.daos.{UserModel, UserRepository}
 import org.http4s.Status.{BadRequest, NotFound, Ok}
@@ -16,6 +17,10 @@ import skunk.Session
 import tsec.common.{VerificationFailed, Verified}
 import tsec.passwordhashers.{PasswordHash, PasswordHasher}
 import tsec.passwordhashers.jca.BCrypt
+import util.Jwt
+import util.Jwt.Token
+import io.circe.generic.auto._
+import io.circe.syntax._
 
 object Authscala3Routes {
 
@@ -33,7 +38,7 @@ object Authscala3Routes {
     }
   }
 
-  def registerRoute[F[_]: Concurrent](implicit
+  def registerRoute[F[_]: Concurrent](cfg: AppConfig)(implicit
       session: Resource[F, Session[F]],
       hasher: PasswordHasher[F, BCrypt]
   ): HttpRoutes[F] = {
@@ -49,14 +54,16 @@ object Authscala3Routes {
           pwHash <- BCrypt.hashpw[F](user.password)
           userWithHashedPassword = UserModel(username = user.username, password = pwHash)
           _ <- UserRepository().insert(userWithHashedPassword)
-          res <- Ok(s"Registered user ${user.username}")
+          token = Token(Jwt.encode(cfg.hasingPrivateKey)).asJson
+          res <- Ok(token)
         } yield res
       case req @ POST -> Root / "login" =>
         val result = for {
           user <- req.as[AuthInfo.User]
           dbUserO <- UserRepository().find(user.username)
           passwordResult <- checkPassword(user, dbUserO)
-          res <- Ok(passwordResult)
+          token = Token(Jwt.encode(cfg.hasingPrivateKey)).asJson
+          res <- Ok(token)
         } yield res
         result.recoverWith {
           case UserNotFound(username)  => BadRequest(s"User $username not found")

@@ -13,7 +13,7 @@ class AuthService(val cfg: AppConfig)(implicit val session: Resource[IO, Session
   private def logger = LoggerFactory.getLogger(this.getClass)
 
   private val apis = Router(
-    "/api" -> Authscala3Routes.registerRoute[IO]
+    "/api" -> Authscala3Routes.registerRoute[IO](cfg)
   ).orNotFound
 
   private def httpServer =

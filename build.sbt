@@ -28,7 +28,8 @@ lazy val root = (project in file("."))
       "is.cir" %% "ciris-refined" % cirisVersion,
       "org.flywaydb" % "flyway-core" % "7.2.0",
       "org.postgresql" % "postgresql" % "42.2.5",
-      "io.github.jmcardon" %% "tsec-password" % tsecV
+      "io.github.jmcardon" %% "tsec-password" % tsecV,
+      "com.github.jwt-scala" %% "jwt-circe" % "9.0.5"
     ),
     testFrameworks += new TestFramework("munit.Framework")
   )
