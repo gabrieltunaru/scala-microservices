@@ -11,7 +11,7 @@ val tsecV = "0.4.0-M1"
 lazy val root = (project in file("."))
   .settings(
     organization := "com.cannondev",
-    name := "auth-scala3",
+    name := "business",
     version := "0.0.1-SNAPSHOT",
     scalaVersion := "3.1.0",
     libraryDependencies ++= Seq(

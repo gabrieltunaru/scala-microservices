@@ -1,4 +1,4 @@
-package com.cannondev.authscala3.storage
+package com.cannondev.business.storage
 
 import cats.effect.Sync
 import cats.implicits.*
@@ -7,7 +7,7 @@ import org.flywaydb.core.api.Location
 import org.flywaydb.core.Flyway
 
 import scala.jdk.CollectionConverters.*
-import com.cannondev.authscala3.config.DbConfig.DatabaseConfig
+import com.cannondev.business.config.DbConfig.DatabaseConfig
 import org.slf4j.LoggerFactory
 
 object DBMigration {

@@ -1,8 +1,8 @@
-package com.cannondev.authscala3
+package com.cannondev.business
 
 import cats.effect.{ExitCode, IO, Resource}
-import com.cannondev.authscala3.config.DbConfig.{AppConfig, DatabaseConfig}
-import com.cannondev.authscala3.storage.DatabaseConnection
+import com.cannondev.business.config.DbConfig.{AppConfig, DatabaseConfig}
+import com.cannondev.business.storage.DatabaseConnection
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.Router
 import org.slf4j.LoggerFactory

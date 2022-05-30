@@ -1,14 +1,14 @@
-package com.cannondev.authscala3
+package com.cannondev.business
 
 import cats.Monad
 import cats.data.{EitherT, OptionT}
 import cats.effect.{Async, IO, Resource, Sync}
 import cats.effect.kernel.Concurrent
 import cats.implicits.*
-import com.cannondev.authscala3.config.DbConfig.AppConfig
-import com.cannondev.authscala3.errors.{DatabaseNotFound, MissingHeader, TokenInvalid}
-import com.cannondev.authscala3.requestModels.RequestProfile
-import com.cannondev.authscala3.storage.daos.{ProfileModel, ProfileRepository}
+import com.cannondev.business.config.DbConfig.AppConfig
+import com.cannondev.business.errors.{DatabaseNotFound, MissingHeader, TokenInvalid}
+import com.cannondev.business.requestModels.RequestProfile
+import com.cannondev.business.storage.daos.{ProfileModel, ProfileRepository}
 import org.http4s.Status.{BadRequest, NotFound, Ok}
 import org.http4s.{Credentials, EntityDecoder, Headers, HttpRoutes, MediaType, Response}
 import org.http4s.circe.jsonOf

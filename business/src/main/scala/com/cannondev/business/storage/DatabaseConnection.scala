@@ -1,6 +1,6 @@
-package com.cannondev.authscala3.storage
+package com.cannondev.business.storage
 import cats.effect.*
-import com.cannondev.authscala3.config.DbConfig
+import com.cannondev.business.config.DbConfig
 import skunk.*
 import skunk.implicits.*
 import skunk.codec.all.*

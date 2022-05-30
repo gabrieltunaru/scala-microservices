@@ -1,8 +1,8 @@
-package com.cannondev.authscala3.util
+package com.cannondev.business.util
 
 import cats.effect.kernel.Concurrent
 import cats.{Monad, MonadError, MonadThrow}
-import com.cannondev.authscala3.errors.TokenInvalid
+import com.cannondev.business.errors.TokenInvalid
 import org.slf4j.LoggerFactory
 
 import java.time.Instant

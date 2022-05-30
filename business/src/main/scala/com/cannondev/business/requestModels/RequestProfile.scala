@@ -1,4 +1,4 @@
-package com.cannondev.authscala3.requestModels
+package com.cannondev.business.requestModels
 
 import cats.Applicative
 import cats.effect.Concurrent

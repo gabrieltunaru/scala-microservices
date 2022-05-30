@@ -1,4 +1,4 @@
-package com.cannondev.authscala3.errors
+package com.cannondev.business.errors
 
 sealed trait Errors extends Exception
 

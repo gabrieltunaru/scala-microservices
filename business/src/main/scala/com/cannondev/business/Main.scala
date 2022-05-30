@@ -1,9 +1,9 @@
-package com.cannondev.authscala3
+package com.cannondev.business
 
 import cats.effect.{ExitCode, IO, IOApp}
-import com.cannondev.authscala3.config.DbConfig
-import com.cannondev.authscala3.config.DbConfig.DatabaseConfig
-import com.cannondev.authscala3.storage.{DBMigration, DatabaseConnection}
+import com.cannondev.business.config.DbConfig
+import com.cannondev.business.config.DbConfig.DatabaseConfig
+import com.cannondev.business.storage.{DBMigration, DatabaseConnection}
 import com.comcast.ip4s.Literals.ipv4
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.Router

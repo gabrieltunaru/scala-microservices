@@ -1,4 +1,4 @@
-package com.cannondev.authscala3.util
+package com.cannondev.business.util
 
 import cats.Monad
 import cats.effect.{Async, IO}

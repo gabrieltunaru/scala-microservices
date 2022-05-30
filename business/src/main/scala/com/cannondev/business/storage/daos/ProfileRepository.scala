@@ -1,4 +1,4 @@
-package com.cannondev.authscala3.storage.daos
+package com.cannondev.business.storage.daos
 
 import cats.effect.*
 import cats.implicits.*

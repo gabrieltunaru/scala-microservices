@@ -1,4 +1,4 @@
-package com.cannondev.authscala3.config
+package com.cannondev.business.config
 
 import cats.implicits._
 import cats.effect.IO
