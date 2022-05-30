@@ -103,12 +103,12 @@ object Authscala3Routes {
           case TokenInvalid(message) => BadRequest(message)
         }
 
-      case req @ GET -> Root / "event" =>
+      case req @ GET -> Root / "events" =>
         val result = for {
           token <- getAuthToken(req.headers)
-          userId <- AuthClient().getUserId(token)
-          profile <- ProfileRepository().find(userId)
-          res <- Ok(profile)
+          _ <- AuthClient().getUserId(token)
+          events <- EventRepository().find()
+          res <- Ok(events)
         } yield res
 
         result.recoverWith {
