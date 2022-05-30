@@ -10,7 +10,7 @@ import java.util.UUID
 
 trait ProfileRepository[F[_]] {
   def insert(user: ProfileModel): F[Unit]
-  def find(username: String): F[Option[ProfileModel]]
+  def find(userId: String): F[Option[ProfileModel]]
 }
 
 case class ProfileModel(uuid: UUID = UUID.randomUUID(), userId: UUID, name: String, address: String)
@@ -22,8 +22,8 @@ object ProfileRepository {
       .gcontramap[ProfileModel]
   }
 
-  private val findOne: Query[String, ProfileModel] = {
-    sql"SELECT * FROM public.profile WHERE user_id=$varchar"
+  private val findOne: Query[UUID, ProfileModel] = {
+    sql"SELECT * FROM public.profile WHERE user_id=$uuid"
       .query(uuid ~ uuid ~ varchar ~ varchar)
       .gmap[ProfileModel]
   }
@@ -39,7 +39,7 @@ object ProfileRepository {
         }
       def find(userId: String): F[Option[ProfileModel]] =
         session.use { s =>
-          s.prepare(findOne).use(_.stream(userId, 32).compile.last)
+          s.prepare(findOne).use(_.stream(UUID.fromString(userId), 32).compile.last)
         }
     }
   }

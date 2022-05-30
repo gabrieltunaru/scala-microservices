@@ -46,22 +46,36 @@ object Authscala3Routes {
     implicit val decoder: EntityDecoder[F, RequestProfile] = jsonOf[F, RequestProfile]
     import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 
-    HttpRoutes.of[F] { case req @ POST -> Root / "profile" =>
-      val result = for {
-        profile <- req.as[RequestProfile]
-        token <- getAuthToken(req.headers)
-        userId <- AuthClient().getUserId(token)
-        _ = logger.info(s"Got user id: $userId")
-        profileModel = ProfileModel(userId = UUID.fromString(userId), name = profile.name, address = profile.address)
-        _ <- ProfileRepository().insert(profileModel)
-        res <- Ok(userId)
-      } yield res
+    HttpRoutes.of[F] {
+      case req @ POST -> Root / "profile" =>
+        val result = for {
+          profile <- req.as[RequestProfile]
+          token <- getAuthToken(req.headers)
+          userId <- AuthClient().getUserId(token)
+          _ = logger.info(s"Got user id: $userId")
+          profileModel = ProfileModel(userId = UUID.fromString(userId), name = profile.name, address = profile.address)
+          _ <- ProfileRepository().insert(profileModel)
+          res <- Ok(userId)
+        } yield res
 
-      result.recoverWith {
-        case DatabaseNotFound(username) =>
-          BadRequest(s"User $username not found")
-        case TokenInvalid(message) => BadRequest(message)
-      }
+        result.recoverWith {
+          case DatabaseNotFound(username) =>
+            BadRequest(s"User $username not found")
+          case TokenInvalid(message) => BadRequest(message)
+        }
+      case req @ GET -> Root / "profile" =>
+        val result = for {
+          token <- getAuthToken(req.headers)
+          userId <- AuthClient().getUserId(token)
+          profile <- ProfileRepository().find(userId)
+          res <- Ok(profile)
+        } yield res
+
+        result.recoverWith {
+          case DatabaseNotFound(username) =>
+            BadRequest(s"User $username not found")
+          case TokenInvalid(message) => BadRequest(message)
+        }
     }
   }
 }
