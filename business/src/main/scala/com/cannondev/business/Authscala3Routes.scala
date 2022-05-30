@@ -7,8 +7,9 @@ import cats.effect.kernel.Concurrent
 import cats.implicits.*
 import com.cannondev.business.config.DbConfig.AppConfig
 import com.cannondev.business.errors.{DatabaseNotFound, MissingHeader, TokenInvalid}
-import com.cannondev.business.requestModels.RequestProfile
-import com.cannondev.business.storage.daos.{ProfileModel, ProfileRepository}
+import com.cannondev.business.requestModels.{RequestEvent, RequestProfile}
+import com.cannondev.business.storage.daos.{EventModel, EventRepository, ProfileModel, ProfileRepository}
+import com.cannondev.business.util.OptionUtil._
 import org.http4s.Status.{BadRequest, NotFound, Ok}
 import org.http4s.{Credentials, EntityDecoder, Headers, HttpRoutes, MediaType, Response}
 import org.http4s.circe.jsonOf
@@ -44,6 +45,7 @@ object Authscala3Routes {
     val dsl = new Http4sDsl[F] {}
     import dsl._
     implicit val decoder: EntityDecoder[F, RequestProfile] = jsonOf[F, RequestProfile]
+    implicit val eventDecoder: EntityDecoder[F, RequestEvent] = jsonOf[F, RequestEvent]
     import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 
     HttpRoutes.of[F] {
@@ -64,6 +66,44 @@ object Authscala3Routes {
           case TokenInvalid(message) => BadRequest(message)
         }
       case req @ GET -> Root / "profile" =>
+        val result = for {
+          token <- getAuthToken(req.headers)
+          userId <- AuthClient().getUserId(token)
+          profile <- ProfileRepository().find(userId)
+          res <- Ok(profile)
+        } yield res
+
+        result.recoverWith {
+          case DatabaseNotFound(username) =>
+            BadRequest(s"User $username not found")
+          case TokenInvalid(message) => BadRequest(message)
+        }
+
+      case req @ POST -> Root / "event" =>
+        val result = for {
+          event <- req.as[RequestEvent]
+          token <- getAuthToken(req.headers)
+          userId <- AuthClient().getUserId(token)
+          profileO <- ProfileRepository().find(userId)
+          profile <- profileO.orElse(DatabaseNotFound(userId))
+          eventModel = EventModel(
+            name = event.name,
+            description = event.description,
+            time = event.time,
+            owner = profile.uuid,
+            address = event.address
+          )
+          _ <- EventRepository().insert(eventModel)
+          res <- Ok(userId)
+        } yield res
+
+        result.recoverWith {
+          case DatabaseNotFound(username) =>
+            BadRequest(s"User $username not found")
+          case TokenInvalid(message) => BadRequest(message)
+        }
+
+      case req @ GET -> Root / "event" =>
         val result = for {
           token <- getAuthToken(req.headers)
           userId <- AuthClient().getUserId(token)
