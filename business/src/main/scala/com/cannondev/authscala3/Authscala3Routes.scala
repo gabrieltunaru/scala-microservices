@@ -24,6 +24,8 @@ import io.circe.syntax.*
 import org.http4s.headers.{Accept, Authorization}
 import org.slf4j.LoggerFactory
 
+import java.util.UUID
+
 object Authscala3Routes {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
@@ -50,6 +52,8 @@ object Authscala3Routes {
         token <- getAuthToken(req.headers)
         userId <- AuthClient().getUserId(token)
         _ = logger.info(s"Got user id: $userId")
+        profileModel = ProfileModel(userId = UUID.fromString(userId), name = profile.name, address = profile.address)
+        _ <- ProfileRepository().insert(profileModel)
         res <- Ok(userId)
       } yield res
 

@@ -13,17 +13,17 @@ trait ProfileRepository[F[_]] {
   def find(username: String): F[Option[ProfileModel]]
 }
 
-case class ProfileModel(uuid: UUID = UUID.randomUUID(), userId: UUID, name: String, password: String)
+case class ProfileModel(uuid: UUID = UUID.randomUUID(), userId: UUID, name: String, address: String)
 
 object ProfileRepository {
 
   private val insertOne: Command[ProfileModel] = {
-    sql"INSERT INTO public.user VALUES ($uuid, $uuid, $varchar, $varchar);".command
+    sql"INSERT INTO public.profile VALUES ($uuid, $uuid, $varchar, $varchar);".command
       .gcontramap[ProfileModel]
   }
 
   private val findOne: Query[String, ProfileModel] = {
-    sql"SELECT * FROM public.user WHERE user_id=$varchar"
+    sql"SELECT * FROM public.profile WHERE user_id=$varchar"
       .query(uuid ~ uuid ~ varchar ~ varchar)
       .gmap[ProfileModel]
   }
