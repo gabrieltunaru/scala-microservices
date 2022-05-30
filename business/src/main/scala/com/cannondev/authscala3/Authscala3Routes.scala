@@ -43,14 +43,16 @@ object Authscala3Routes {
     import dsl._
     implicit val decoder: EntityDecoder[F, RequestProfile] = jsonOf[F, RequestProfile]
     import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
+
     HttpRoutes.of[F] { case req @ POST -> Root / "profile" =>
       val result = for {
         profile <- req.as[RequestProfile]
         token <- getAuthToken(req.headers)
         userId <- AuthClient().getUserId(token)
         _ = logger.info(s"Got user id: $userId")
-        res <- Ok(token.toString)
+        res <- Ok(userId)
       } yield res
+
       result.recoverWith {
         case DatabaseNotFound(username) =>
           BadRequest(s"User $username not found")

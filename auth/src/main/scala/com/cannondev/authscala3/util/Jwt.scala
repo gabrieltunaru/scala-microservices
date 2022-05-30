@@ -1,14 +1,18 @@
 package com.cannondev.authscala3.util
 
 import cats.effect.kernel.Concurrent
-import com.cannondev.authscala3.errors.{InvalidToken}
+import com.cannondev.authscala3.errors.InvalidToken
 import com.cannondev.authscala3.util.Jwt.logger
+import io.circe.Encoder
 import org.slf4j.LoggerFactory
 
 import java.time.Instant
 import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
 
 import scala.util.{Failure, Success}
+import io.circe.generic.auto._, io.circe.syntax._
+import io.circe.parser
+import org.http4s.EntityDecoder
 
 object Jwt {
 
@@ -16,10 +20,13 @@ object Jwt {
 
   case class Token(token: String)
 
-  def encode(secret: String): String = {
+  private case class UserId(userId: String)
+
+  def encode(secret: String, userId: String): String = {
     val claim = JwtClaim(
       expiration = Some(Instant.now.plusSeconds(157784760).getEpochSecond),
-      issuedAt = Some(Instant.now.getEpochSecond)
+      issuedAt = Some(Instant.now.getEpochSecond),
+      content = UserId(userId).asJson.toString
     )
     val algo = JwtAlgorithm.HS256
     JwtCirce.encode(claim, secret, algo)
@@ -33,7 +40,9 @@ object Jwt {
         val errorMessage = s"Invalid JWT token: $exception"
         logger.warn(errorMessage)
         F.raiseError(InvalidToken)
-      case Success(value) => F.pure(value.content)
+      case Success(value) => parser.decode[UserId](value.content) match
+        case Left(_) => F.raiseError(InvalidToken)
+        case Right(userId) => F.pure(userId.userId)
     }
   }
 }

@@ -9,6 +9,7 @@ import com.cannondev.authscala3.AuthInfo.User
 import com.cannondev.authscala3.config.DbConfig.AppConfig
 import com.cannondev.authscala3.errors.{InvalidToken, MissingHeader, UserNotFound, WrongPassword}
 import com.cannondev.authscala3.storage.daos.{UserModel, UserRepository}
+import com.cannondev.authscala3.util.OptionUtil._
 import org.http4s.Status.{BadRequest, Forbidden, NotFound, Ok, Unauthorized}
 import org.http4s.{EntityDecoder, Headers, HttpRoutes, Response}
 import org.http4s.circe.jsonOf
@@ -62,7 +63,9 @@ object Authscala3Routes {
           pwHash <- BCrypt.hashpw[F](user.password)
           userWithHashedPassword = UserModel(username = user.username, password = pwHash)
           _ <- UserRepository().insert(userWithHashedPassword)
-          token = Token(Jwt.encode(cfg.hasingPrivateKey)).asJson
+          insertedUserO <- UserRepository().find(user.username)
+          insertedUser <- insertedUserO.orElse(UserNotFound(user.username))
+          token = Token(Jwt.encode(cfg.hasingPrivateKey, insertedUser.uuid.toString())).asJson
           res <- Ok(token)
         } yield res
       case req @ POST -> Root / "login" =>
@@ -70,7 +73,8 @@ object Authscala3Routes {
           user <- req.as[AuthInfo.User]
           dbUserO <- UserRepository().find(user.username)
           passwordResult <- checkPassword(user, dbUserO)
-          token = Token(Jwt.encode(cfg.hasingPrivateKey)).asJson
+          dbUser <- dbUserO.orElse(UserNotFound(user.username))
+          token = Token(Jwt.encode(cfg.hasingPrivateKey, dbUserO.get.uuid.toString)).asJson
           res <- Ok(token)
         } yield res
         result.recoverWith {
@@ -80,8 +84,8 @@ object Authscala3Routes {
       case req @ POST -> Root / "validate" =>
         val result = for {
           token <- getAuthToken(req.headers)
-          isTokenValid <- Jwt.decode(token, cfg.hasingPrivateKey)
-          res <- Ok(isTokenValid)
+          userId <- Jwt.decode(token, cfg.hasingPrivateKey)
+          res <- Ok(userId)
         } yield res
         result.recoverWith {
           case MissingHeader => BadRequest("Missing auth token")
