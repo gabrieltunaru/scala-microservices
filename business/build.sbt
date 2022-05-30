@@ -18,6 +18,7 @@ lazy val root = (project in file("."))
       "org.http4s" %% "http4s-blaze-server" % Http4sVersion,
       "org.http4s" %% "http4s-circe" % Http4sVersion,
       "org.http4s" %% "http4s-dsl" % Http4sVersion,
+      "org.http4s" %% "http4s-blaze-client" % Http4sVersion,
       "org.scalameta" %% "munit" % MunitVersion % Test,
       "org.typelevel" %% "munit-cats-effect-3" % MunitCatsEffectVersion % Test,
       "ch.qos.logback" % "logback-classic" % LogbackVersion,

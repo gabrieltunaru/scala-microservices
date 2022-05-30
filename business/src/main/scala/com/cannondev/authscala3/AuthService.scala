@@ -18,14 +18,14 @@ class AuthService(val cfg: AppConfig)(implicit val session: Resource[IO, Session
 
   private def httpServer =
     BlazeServerBuilder[IO]
-      .bindHttp(8080, "localhost")
+      .bindHttp(8081, "localhost")
       .withHttpApp(apis)
       .resource
       .use(_ => IO.never)
       .as(ExitCode.Success)
 
   def start(): IO[ExitCode] = {
-    logger.info(s"Private key: ${cfg.hasingPrivateKey}")
+    logger.info(s"Private key: ${cfg.publicKey}")
     for {
       httpS <- httpServer
     } yield httpS

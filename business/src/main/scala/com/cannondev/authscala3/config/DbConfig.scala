@@ -15,7 +15,7 @@ object DbConfig {
 
   final case class AppConfig(
       dbConfig: DatabaseConfig,
-      hasingPrivateKey: String
+      publicKey: String
   )
 
   def dbConfig: ConfigValue[IO, DatabaseConfig] =
@@ -30,7 +30,7 @@ object DbConfig {
   def appConfig: ConfigValue[IO, AppConfig] =
     (
       dbConfig.as[DatabaseConfig],
-      env("PRIVATE_KEY").as[String].default("thisisaprivatekey")
+      env("PUBLIC_KEY").as[String].default("thisisapublickey")
     ).parMapN(AppConfig.apply)
 
 }
