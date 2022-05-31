@@ -3,7 +3,7 @@ FROM hseeberger/scala-sbt:11.0.13_1.6.2_3.1.0
 # prevent this error: java.lang.IllegalStateException: cannot run sbt from root directory without -Dsbt.rootdir=true; see sbt/sbt#1458
 WORKDIR /app
 
-ARG DB_NAME=ada
+ARG DB_NAME=ada_business
 ARG DB_PASSWORD=password
 ARG DB_USERNAME=ada
 
