@@ -14,7 +14,7 @@ import io.circe.generic.auto._, io.circe.syntax._
 import io.circe.parser
 import org.http4s.EntityDecoder
 
-object Jwt {
+object Jwt:
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -22,7 +22,7 @@ object Jwt {
 
   private case class UserId(userId: String)
 
-  def encode(secret: String, userId: String): String = {
+  def encode(secret: String, userId: String): String =
     val claim = JwtClaim(
       expiration = Some(Instant.now.plusSeconds(157784760).getEpochSecond),
       issuedAt = Some(Instant.now.getEpochSecond),
@@ -30,9 +30,8 @@ object Jwt {
     )
     val algo = JwtAlgorithm.HS256
     JwtCirce.encode(claim, secret, algo)
-  }
 
-  def decode[F[_]](token: String, key: String)(implicit F: Concurrent[F]): F[String] = {
+  def decode[F[_]](token: String, key: String)(implicit F: Concurrent[F]): F[String] =
     val tokenWithoutBearer = token.slice(7, token.length)
     logger.info(s"Decoding token $tokenWithoutBearer")
     JwtCirce.decode(tokenWithoutBearer, key, List(JwtAlgorithm.HS256)) match {
@@ -40,9 +39,8 @@ object Jwt {
         val errorMessage = s"Invalid JWT token: $exception"
         logger.warn(errorMessage)
         F.raiseError(InvalidToken)
-      case Success(value) => parser.decode[UserId](value.content) match
-        case Left(_) => F.raiseError(InvalidToken)
-        case Right(userId) => F.pure(userId.userId)
+      case Success(value) =>
+        parser.decode[UserId](value.content) match
+          case Left(_)       => F.raiseError(InvalidToken)
+          case Right(userId) => F.pure(userId.userId)
     }
-  }
-}

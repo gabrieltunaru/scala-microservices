@@ -21,30 +21,29 @@ import com.cannondev.authscala3.AuthInfo.User
 import tsec.passwordhashers.PasswordHash
 import com.cannondev.authscala3.util.OptionUtil._
 
-class UserAlgebra[F[_]](implicit
+class UserAlgebra[F[_]](using
     session: Resource[F, Session[F]],
     cfg: AppConfig,
     F: Async[F]
-) {
+):
 
   private def checkPassword(
       user: User,
       dbUserO: Option[UserModel]
-  ): F[Boolean] = {
+  ): F[Boolean] =
     dbUserO match {
       case Some(dbUser) =>
-        for {
+        for
           isPasswordRight <- BCrypt
             .checkpwBool[F](user.password, PasswordHash(dbUser.password))
           res <-
-            if (isPasswordRight) F.pure(true)
+            if isPasswordRight then F.pure(true)
             else F.raiseError(WrongPassword(user.username))
-        } yield res
+        yield res
       case None => F.raiseError(UserNotFound(user.username))
     }
-  }
 
-  def register(credentials: User): F[Token] = for {
+  def register(credentials: User): F[Token] = for
     pwHash <- BCrypt.hashpw[F](credentials.password)
     userWithHashedPassword = UserModel(
       username = credentials.username,
@@ -56,16 +55,14 @@ class UserAlgebra[F[_]](implicit
       case Some(value) => F.pure(value)
       case None        => F.raiseError(UserNotFound(credentials.username))
     }
-  } yield Token(
+  yield Token(
     Jwt.encode(cfg.hasingPrivateKey, insertedUser.uuid.toString())
   )
 
-  def login(credentials: User): F[Token] = for {
+  def login(credentials: User): F[Token] = for
     dbUserO <- UserRepository().find(credentials.username)
     passwordResult <- checkPassword(credentials, dbUserO)
     dbUser <- dbUserO.orElse(UserNotFound(credentials.username))
-  } yield Token(
+  yield Token(
     Jwt.encode(cfg.hasingPrivateKey, dbUser.uuid.toString)
   )
-
-}

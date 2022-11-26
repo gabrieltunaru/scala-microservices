@@ -50,8 +50,8 @@ object DBMigration {
       .load()
       .validateWithResult()
 
-    if (!validated.validationSuccessful)
-      for (error <- validated.invalidMigrations.asScala)
+    if !validated.validationSuccessful then
+      for error <- validated.invalidMigrations.asScala do
         logger.warn(s"""
                        |Failed validation:
                        |  - version: ${error.version}

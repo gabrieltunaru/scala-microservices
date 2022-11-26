@@ -4,7 +4,7 @@ import cats.effect.kernel.Concurrent
 import cats.{Monad, MonadError}
 import com.cannondev.authscala3.errors.Errors
 
-object OptionUtil {
+object OptionUtil:
   extension[F[_], T](option: Option[T]) {
     def orElse(me: Errors)(implicit F: Concurrent[F]): F[T] = {
       option match
@@ -12,4 +12,3 @@ object OptionUtil {
         case None => F.raiseError(me)
     }
   }
-}
