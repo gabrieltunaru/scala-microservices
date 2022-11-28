@@ -33,7 +33,6 @@ object Jwt:
 
   def decode[F[_]](token: String, key: String)(implicit F: Concurrent[F]): F[String] =
     val tokenWithoutBearer = token.slice(7, token.length)
-    logger.info(s"Decoding token $tokenWithoutBearer")
     JwtCirce.decode(tokenWithoutBearer, key, List(JwtAlgorithm.HS256)) match {
       case Failure(exception) =>
         val errorMessage = s"Invalid JWT token: $exception"
