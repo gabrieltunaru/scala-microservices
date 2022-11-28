@@ -23,7 +23,7 @@ object DatabaseConnection {
       for
         d <- s.unique(sql"select current_date".query(date))
         _ <- IO.println(s"The current date is $d.")
-      yield IO.unit
+      yield ()
     }
 
 }

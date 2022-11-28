@@ -29,6 +29,7 @@ lazy val root = (project in file("."))
       "io.github.jmcardon" %% "tsec-password" % tsecV,
       "com.github.jwt-scala" %% "jwt-circe" % "9.0.5"
     ),
+    libraryDependencies += compilerPlugin("com.github.ghik" % "zerowaste" % "0.2.1" cross CrossVersion.full),
     testFrameworks += new TestFramework("munit.Framework")
   )
 scalacOptions ++= Seq("-new-syntax", "-rewrite")
