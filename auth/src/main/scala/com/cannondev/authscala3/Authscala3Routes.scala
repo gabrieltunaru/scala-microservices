@@ -24,8 +24,12 @@ import com.cannondev.authscala3.errors.*
 import com.cannondev.authscala3.storage.daos.{UserModel, UserRepository}
 import com.cannondev.authscala3.util.OptionUtil._
 import com.cannondev.authscala3.algebra.UserAlgebra
+import com.cannondev.authscala3.routes.ErrorHandler
 import util.Jwt
 import util.Jwt.Token
+
+import cats.implicits.*
+import cats.effect.implicits.*
 
 object Authscala3Routes:
 
@@ -43,32 +47,28 @@ object Authscala3Routes:
     val dsl = new Http4sDsl[F] {}
     import dsl._
 
+    val errorHandler = ErrorHandler()
+
     HttpRoutes.of[F] {
       case req @ POST -> Root / "register" =>
-        for
+        val route = for
           credentials <- req.as[User]
           token <- userAlgebra.register(credentials)
           res <- Ok(token.asJson)
         yield res
+        route.recoverWith(errorHandler.handleErrors)
       case req @ POST -> Root / "login" =>
-        val result = for
+        val route = for
           credentials <- req.as[User]
           token <- userAlgebra.login(credentials)
           res <- Ok(token.asJson)
         yield res
-        result.recoverWith {
-          case UserNotFound(username) => BadRequest(s"User $username not found")
-          case WrongPassword(username) =>
-            BadRequest(s"Wrong password for user $username")
-        }
+        route.recoverWith(errorHandler.handleErrors)
       case req @ POST -> Root / "validate" =>
-        val result = for
+        val route = for
           token <- getAuthToken(req.headers)
           userId <- Jwt.decode(token, cfg.hasingPrivateKey)
           res <- Ok(userId)
         yield res
-        result.recoverWith {
-          case MissingHeader => BadRequest("Missing auth token")
-          case InvalidToken  => Forbidden("Invalid token")
-        }
+        route.recoverWith(errorHandler.handleErrors)
     }
