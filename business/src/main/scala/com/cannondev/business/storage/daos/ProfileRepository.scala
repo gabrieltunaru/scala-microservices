@@ -13,8 +13,6 @@ trait ProfileRepository[F[_]] {
   def find(userId: String): F[Option[ProfileModel]]
 }
 
-case class ProfileModel(uuid: UUID = UUID.randomUUID(), userId: UUID, name: String, address: String)
-
 object ProfileRepository:
 
   private val insertOne: Command[ProfileModel] =

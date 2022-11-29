@@ -23,12 +23,13 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.*
 import org.http4s.{Headers, HttpRoutes}
 import org.http4s.circe.*
-import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
+import org.http4s.circe.CirceEntityCodec.{circeEntityDecoder, circeEntityEncoder}
 
 import org.slf4j.LoggerFactory
 import java.util.UUID
 import io.circe.syntax.*
 import io.circe.generic.auto.*
+
 
 object Authscala3Routes:
 

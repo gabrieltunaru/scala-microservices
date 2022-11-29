@@ -18,8 +18,3 @@ case class EventModel(
     time: LocalDateTime,
     owner: UUID
 )
-
-object EventModel:
-  given Encoder[EventModel] = deriveEncoder
-  given [F[_]: Concurrent]: EntityEncoder[F, EventModel] = jsonEncoderOf[F, EventModel]
-  given [F[_]: Concurrent]: EntityEncoder[F, List[EventModel]] = jsonEncoderOf[F, List[EventModel]]
