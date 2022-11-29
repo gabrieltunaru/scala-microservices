@@ -56,7 +56,7 @@ class Routes[F[_]](using
         val route = for
           token <- getAuthToken(req.headers)
           userId <- Jwt.decode(token, cfg.hasingPrivateKey)
-          res <- Ok(userId)
+          res <- Ok(userId.asJson)
         yield res
         route.recoverWith(errorHandler.handleErrors)
     }
