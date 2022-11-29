@@ -2,7 +2,6 @@ package com.cannondev.business.util
 
 import cats.effect.kernel.Concurrent
 import cats.{Monad, MonadError, MonadThrow}
-import com.cannondev.business.errors.TokenInvalid
 import org.slf4j.LoggerFactory
 
 import java.time.Instant
@@ -10,7 +9,7 @@ import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
 
 import scala.util.{Failure, Success}
 
-object Jwt {
+object Jwt:
 
   case class Token(token: String)
 
@@ -22,4 +21,4 @@ object Jwt {
     val algo = JwtAlgorithm.RS256
     JwtCirce.encode(claim, secret, algo)
   }
-}
+

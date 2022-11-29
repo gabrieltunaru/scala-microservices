@@ -15,32 +15,27 @@ trait ProfileRepository[F[_]] {
 
 case class ProfileModel(uuid: UUID = UUID.randomUUID(), userId: UUID, name: String, address: String)
 
-object ProfileRepository {
+object ProfileRepository:
 
-  private val insertOne: Command[ProfileModel] = {
+  private val insertOne: Command[ProfileModel] =
     sql"INSERT INTO public.profile VALUES ($uuid, $uuid, $varchar, $varchar);".command
       .gcontramap[ProfileModel]
-  }
 
-  private val findOne: Query[UUID, ProfileModel] = {
+  private val findOne: Query[UUID, ProfileModel] =
     sql"SELECT * FROM public.profile WHERE user_id=$uuid"
       .query(uuid ~ uuid ~ varchar ~ varchar)
       .gmap[ProfileModel]
-  }
 
-  def apply[F[_]: Concurrent]()(implicit
+  def apply[F[_]: Concurrent]()(using
       session: Resource[F, Session[F]],
       ev: MonadCancel[F, Throwable]
-  ): ProfileRepository[F] = {
-    new ProfileRepository[F] {
-      def insert(profile: ProfileModel): F[Unit] =
-        session.use { s =>
-          s.prepare(insertOne).use(_.execute(profile)).void
-        }
-      def find(userId: String): F[Option[ProfileModel]] =
-        session.use { s =>
-          s.prepare(findOne).use(_.stream(UUID.fromString(userId), 32).compile.last)
-        }
-    }
+  ): ProfileRepository[F] = new ProfileRepository[F] {
+    def insert(profile: ProfileModel): F[Unit] =
+      session.use { s =>
+        s.prepare(insertOne).use(_.execute(profile)).void
+      }
+    def find(userId: String): F[Option[ProfileModel]] =
+      session.use { s =>
+        s.prepare(findOne).use(_.stream(UUID.fromString(userId), 32).compile.last)
+      }
   }
-}

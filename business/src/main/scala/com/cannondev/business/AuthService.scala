@@ -8,7 +8,7 @@ import org.http4s.server.Router
 import org.slf4j.LoggerFactory
 import skunk.Session
 
-class AuthService(val cfg: AppConfig)(implicit val session: Resource[IO, Session[IO]]) {
+class AuthService(val cfg: AppConfig)(using session: Resource[IO, Session[IO]]):
 
   private def logger = LoggerFactory.getLogger(this.getClass)
 
@@ -18,7 +18,7 @@ class AuthService(val cfg: AppConfig)(implicit val session: Resource[IO, Session
 
   private def httpServer =
     BlazeServerBuilder[IO]
-      .bindHttp(8081, "localhost")
+      .bindHttp(8081, "0.0.0.0")
       .withHttpApp(apis)
       .resource
       .use(_ => IO.never)
@@ -26,8 +26,7 @@ class AuthService(val cfg: AppConfig)(implicit val session: Resource[IO, Session
 
   def start(): IO[ExitCode] = {
     logger.info(s"Private key: ${cfg.publicKey}")
-    for {
+    for
       httpS <- httpServer
-    } yield httpS
+    yield httpS
   }
-}

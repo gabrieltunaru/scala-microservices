@@ -6,51 +6,51 @@ import cats.effect.{Async, IO, Resource, Sync}
 import cats.effect.kernel.Concurrent
 import cats.implicits.*
 import com.cannondev.business.config.DbConfig.AppConfig
-import com.cannondev.business.errors.{DatabaseNotFound, MissingHeader, TokenInvalid}
-import com.cannondev.business.requestModels.{RequestEvent, RequestProfile}
-import com.cannondev.business.storage.daos.{EventModel, EventRepository, ProfileModel, ProfileRepository}
-import com.cannondev.business.util.OptionUtil._
-import org.http4s.Status.{BadRequest, NotFound, Ok}
-import org.http4s.{Credentials, EntityDecoder, Headers, HttpRoutes, MediaType, Response}
-import org.http4s.circe.jsonOf
-import org.http4s.dsl.Http4sDsl
+import com.cannondev.business.errors.*
+import com.cannondev.business.domain.*
+import com.cannondev.business.storage.daos.*
+import com.cannondev.business.util.OptionUtil.*
+import com.cannondev.business.domain.RequestEvent.*
 import skunk.Session
 import tsec.common.{VerificationFailed, Verified}
 import tsec.passwordhashers.{PasswordHash, PasswordHasher}
 import tsec.passwordhashers.jca.BCrypt
 import util.{AuthClient, Jwt}
 import util.Jwt.Token
-import io.circe.generic.auto.*
-import io.circe.syntax.*
-import org.http4s.headers.{Accept, Authorization}
+
+import org.http4s.Status.{BadRequest, NotFound, Ok}
+import org.http4s.dsl.Http4sDsl
+import org.http4s.headers.*
+import org.http4s.{Headers, HttpRoutes}
+import org.http4s.circe.*
+import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
+
 import org.slf4j.LoggerFactory
-
 import java.util.UUID
+import io.circe.syntax.*
+import io.circe.generic.auto.*
 
-object Authscala3Routes {
+object Authscala3Routes:
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  private def getAuthToken[F[_]](headers: Headers)(implicit F: Concurrent[F]): F[String] = {
+  private def getAuthToken[F[_]](headers: Headers)(using F: Concurrent[F]): F[String] = {
     headers.get(Authorization.name) match {
       case Some(value) => F.pure(value.head.value)
       case None        => F.raiseError(MissingHeader)
     }
   }
 
-  def registerRoute[F[_]: Concurrent: Async](cfg: AppConfig)(implicit
+  def registerRoute[F[_]: Async](cfg: AppConfig)(using
       session: Resource[F, Session[F]],
       hasher: PasswordHasher[F, BCrypt]
-  ): HttpRoutes[F] = {
+  ): HttpRoutes[F] =
     val dsl = new Http4sDsl[F] {}
-    import dsl._
-    implicit val decoder: EntityDecoder[F, RequestProfile] = jsonOf[F, RequestProfile]
-    implicit val eventDecoder: EntityDecoder[F, RequestEvent] = jsonOf[F, RequestEvent]
-    import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
+    import dsl.*
 
     HttpRoutes.of[F] {
       case req @ POST -> Root / "profile" =>
-        val result = for {
+        val result = for
           profile <- req.as[RequestProfile]
           token <- getAuthToken(req.headers)
           userId <- AuthClient().getUserId(token)
@@ -58,34 +58,30 @@ object Authscala3Routes {
           profileModel = ProfileModel(userId = UUID.fromString(userId), name = profile.name, address = profile.address)
           _ <- ProfileRepository().insert(profileModel)
           res <- Ok(userId)
-        } yield res
-
-        result.recoverWith {
-          case DatabaseNotFound(username) =>
-            BadRequest(s"User $username not found")
-          case TokenInvalid(message) => BadRequest(message)
+        yield res
+        result.recoverWith { case DatabaseNotFound(username) =>
+          BadRequest(s"User $username not found")
         }
+
       case req @ GET -> Root / "profile" =>
-        val result = for {
+        val result = for
           token <- getAuthToken(req.headers)
           userId <- AuthClient().getUserId(token)
           profile <- ProfileRepository().find(userId)
           res <- Ok(profile)
-        } yield res
+        yield res
 
-        result.recoverWith {
-          case DatabaseNotFound(username) =>
-            BadRequest(s"User $username not found")
-          case TokenInvalid(message) => BadRequest(message)
+        result.recoverWith { case DatabaseNotFound(username) =>
+          BadRequest(s"User $username not found")
         }
 
       case req @ POST -> Root / "event" =>
-        val result = for {
+        val result = for
           event <- req.as[RequestEvent]
           token <- getAuthToken(req.headers)
           userId <- AuthClient().getUserId(token)
           profileO <- ProfileRepository().find(userId)
-          profile <- profileO.orElse(DatabaseNotFound(userId))
+          profile <- profileO.orRaise(UserNotFound(userId))
           eventModel = EventModel(
             name = event.name,
             description = event.description,
@@ -95,27 +91,25 @@ object Authscala3Routes {
           )
           _ <- EventRepository().insert(eventModel)
           res <- Ok(userId)
-        } yield res
+        yield res
 
         result.recoverWith {
           case DatabaseNotFound(username) =>
             BadRequest(s"User $username not found")
-          case TokenInvalid(message) => BadRequest(message)
+          case InvalidToken => BadRequest()
         }
 
       case req @ GET -> Root / "events" =>
-        val result = for {
+        val result = for
           token <- getAuthToken(req.headers)
           _ <- AuthClient().getUserId(token)
           events <- EventRepository().find()
           res <- Ok(events)
-        } yield res
+        yield res
 
         result.recoverWith {
           case DatabaseNotFound(username) =>
             BadRequest(s"User $username not found")
-          case TokenInvalid(message) => BadRequest(message)
+          case InvalidToken => BadRequest()
         }
     }
-  }
-}
