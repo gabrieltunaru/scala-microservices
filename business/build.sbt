@@ -15,6 +15,7 @@ lazy val root = (project in file("."))
     name := "business",
     version := "0.0.1-SNAPSHOT",
     scalaVersion := "3.2.1",
+    semanticdbEnabled := true,
     libraryDependencies ++= Seq(
       "org.http4s" %% "http4s-blaze-server" % Http4sBlazeVersion,
       "org.http4s" %% "http4s-circe" % Http4sVersion,
@@ -34,8 +35,11 @@ lazy val root = (project in file("."))
       "io.github.jmcardon" %% "tsec-password" % tsecV,
       "com.github.jwt-scala" %% "jwt-circe" % "9.0.5"
     ),
-    testFrameworks += new TestFramework("munit.Framework")
+    testFrameworks += new TestFramework("munit.Framework"),
+    scalacOptions += "-Ywarn-unused-import"
   )
 
-scalacOptions ++= Seq("-new-syntax", "-rewrite")
-mainClass in (Compile, run) := Some("com.cannondev.business.Main")
+Compile / mainClass := Some("com.cannondev.business.Main")
+run / mainClass := Some("com.cannondev.business.Main")
+
+ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0"

@@ -24,7 +24,7 @@ class AuthService(val cfg: AppConfig)(using session: Resource[IO, Session[IO]]):
   given ProfileAlgebra[IO] = ProfileAlgebra[IO]
 
   private val apis = Router(
-    "/api" -> Routes.routes[IO](cfg)
+    "/api" -> Routes[IO]
   ).orNotFound
 
   private def httpServer =

@@ -1,7 +1,7 @@
 package com.cannondev.business.storage.daos
 
 import cats.effect.*
-import cats.implicits.*
+import cats.implicits.{catsSyntaxApplicativeError, toFlatMapOps, toFunctorOps}
 import skunk.*
 import skunk.codec.all.*
 import skunk.implicits.*
@@ -12,8 +12,6 @@ import java.util.UUID
 trait EventRepository[F[_]]:
   def insert(user: EventModel): F[Unit]
   def find(): F[List[EventModel]]
-
-
 
 object EventRepository:
 

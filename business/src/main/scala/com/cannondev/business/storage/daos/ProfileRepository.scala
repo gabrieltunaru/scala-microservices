@@ -1,7 +1,7 @@
 package com.cannondev.business.storage.daos
 
 import cats.effect.*
-import cats.implicits.*
+import cats.implicits.{catsSyntaxApplicativeError, toFlatMapOps, toFunctorOps}
 import skunk.*
 import skunk.codec.all.*
 import skunk.implicits.*
