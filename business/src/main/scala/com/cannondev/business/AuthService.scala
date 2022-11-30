@@ -1,8 +1,13 @@
 package com.cannondev.business
 
 import cats.effect.{ExitCode, IO, Resource}
+import cats.effect.implicits.*
+import com.cannondev.business.algebra.{EventAlgebra, ProfileAlgebra}
 import com.cannondev.business.config.DbConfig.{AppConfig, DatabaseConfig}
+import com.cannondev.business.routes.Routes
 import com.cannondev.business.storage.DatabaseConnection
+import com.cannondev.business.storage.daos.{EventRepository, ProfileRepository}
+import com.cannondev.business.util.AuthClient
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.Router
 import org.slf4j.LoggerFactory
@@ -12,8 +17,14 @@ class AuthService(val cfg: AppConfig)(using session: Resource[IO, Session[IO]]):
 
   private def logger = LoggerFactory.getLogger(this.getClass)
 
+  given AuthClient[IO] = AuthClient[IO]
+  given ProfileRepository[IO] = ProfileRepository[IO]
+  given EventRepository[IO] = EventRepository[IO]
+  given EventAlgebra[IO] = EventAlgebra[IO]
+  given ProfileAlgebra[IO] = ProfileAlgebra[IO]
+
   private val apis = Router(
-    "/api" -> Authscala3Routes.registerRoute[IO](cfg)
+    "/api" -> Routes.routes[IO](cfg)
   ).orNotFound
 
   private def httpServer =
@@ -26,7 +37,6 @@ class AuthService(val cfg: AppConfig)(using session: Resource[IO, Session[IO]]):
 
   def start(): IO[ExitCode] = {
     logger.info(s"Private key: ${cfg.publicKey}")
-    for
-      httpS <- httpServer
+    for httpS <- httpServer
     yield httpS
   }

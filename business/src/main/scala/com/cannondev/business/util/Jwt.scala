@@ -11,8 +11,6 @@ import scala.util.{Failure, Success}
 
 object Jwt:
 
-  case class Token(token: String)
-
   def encode(secret: String): String = {
     val claim = JwtClaim(
       expiration = Some(Instant.now.plusSeconds(157784760).getEpochSecond),
@@ -21,4 +19,3 @@ object Jwt:
     val algo = JwtAlgorithm.RS256
     JwtCirce.encode(claim, secret, algo)
   }
-

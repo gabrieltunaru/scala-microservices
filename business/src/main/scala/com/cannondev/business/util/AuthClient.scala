@@ -15,7 +15,7 @@ import org.http4s.blaze.client.BlazeClientBuilder
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class AuthClient[F[_]: Async]()(using F: Concurrent[F]):
+class AuthClient[F[_]: Async]:
 
   private val httpClient = BlazeClientBuilder[F]
   def getUserId(token: String): F[String] =

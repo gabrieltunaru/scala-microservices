@@ -26,7 +26,7 @@ object EventRepository:
       .query(uuid ~ varchar ~ varchar ~ varchar ~ timestamp ~ uuid)
       .gmap[EventModel]
 
-  def apply[F[_]: Concurrent]()(using
+  def apply[F[_]: Async](using
       session: Resource[F, Session[F]],
       ev: MonadCancel[F, Throwable]
   ): EventRepository[F] = new EventRepository[F] {

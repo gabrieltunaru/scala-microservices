@@ -23,8 +23,7 @@ object ProfileRepository:
     sql"SELECT * FROM public.profile WHERE user_id=$uuid"
       .query(uuid ~ uuid ~ varchar ~ varchar)
       .gmap[ProfileModel]
-
-  def apply[F[_]: Concurrent]()(using
+  def apply[F[_]: Async](using
       session: Resource[F, Session[F]],
       ev: MonadCancel[F, Throwable]
   ): ProfileRepository[F] = new ProfileRepository[F] {
