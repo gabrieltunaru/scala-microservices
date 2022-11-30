@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:${POSTGRES_VERSION:-13}
+    environment:
+      POSTGRES_DB: scalamicro
+      POSTGRES_USER: scalamicro
+      POSTGRES_PASSWORD: scalamicro
+    ports:
+      - 5432:5432
+    volumes:
+      - scalamicro:/var/lib/postgresql/data
+volumes:
+  scalamicro:
+    driver: local

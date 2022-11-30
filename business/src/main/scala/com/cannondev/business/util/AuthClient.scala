@@ -15,11 +15,10 @@ import org.http4s.blaze.client.BlazeClientBuilder
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class AuthClient[F[_]: Async]()(implicit F: Concurrent[F]) {
+class AuthClient[F[_]: Async]:
 
-//  val httpClient: Client[F] = JavaNetClientBuilder[F].create
   private val httpClient = BlazeClientBuilder[F]
-  def getUserId(token: String): F[String] = {
+  def getUserId(token: String): F[String] =
     implicit val decoder: EntityDecoder[F, String] = jsonOf[F, String]
 
     val request: Request[F] =
@@ -28,8 +27,7 @@ case class AuthClient[F[_]: Async]()(implicit F: Concurrent[F]) {
         uri = Uri.unsafeFromString("http://localhost:8080/api/validate"),
         headers = Headers(Authorization(Credentials.Token(AuthScheme.Bearer, token.slice(7, token.length))))
       ).withEntity(token)
+
     httpClient.resource.use(client => {
       client.expect[String](request)
     })
-  }
-}

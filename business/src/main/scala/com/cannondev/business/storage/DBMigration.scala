@@ -10,7 +10,7 @@ import scala.jdk.CollectionConverters.*
 import com.cannondev.business.config.DbConfig.DatabaseConfig
 import org.slf4j.LoggerFactory
 
-object DBMigration {
+object DBMigration:
 
   private def logger = LoggerFactory.getLogger(this.getClass)
   def migrate[F[_]: Sync](config: DatabaseConfig): F[Int] =
@@ -50,8 +50,8 @@ object DBMigration {
       .load()
       .validateWithResult()
 
-    if (!validated.validationSuccessful)
-      for (error <- validated.invalidMigrations.asScala)
+    if !validated.validationSuccessful then
+      for error <- validated.invalidMigrations.asScala do
         logger.warn(s"""
                        |Failed validation:
                        |  - version: ${error.version}
@@ -61,4 +61,3 @@ object DBMigration {
                        |  - errorMessage: ${error.errorDetails.errorMessage}
         """.stripMargin.strip)
   }
-}

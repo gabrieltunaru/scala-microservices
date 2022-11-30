@@ -7,8 +7,8 @@ import skunk.codec.all.*
 import natchez.Trace.Implicits.noop
 import DbConfig.DatabaseConfig
 
-object DatabaseConnection {
-  def getSession(dbConfig: DatabaseConfig): Resource[IO, Session[IO]] = {
+object DatabaseConnection:
+  def getSession(dbConfig: DatabaseConfig): Resource[IO, Session[IO]] =
     Session.single(
       host = dbConfig.uri,
       port = dbConfig.port,
@@ -16,14 +16,11 @@ object DatabaseConnection {
       database = dbConfig.dbName,
       password = Some(dbConfig.password)
     )
-  }
 
-  def run(session: Resource[IO, Session[IO]]): IO[Unit] =
+  def run(using session: Resource[IO, Session[IO]]): IO[Unit] =
     session.use { s =>
-      for {
+      for
         d <- s.unique(sql"select current_date".query(date))
         _ <- IO.println(s"The current date is $d.")
-      } yield IO.unit
+      yield IO.unit
     }
-
-}

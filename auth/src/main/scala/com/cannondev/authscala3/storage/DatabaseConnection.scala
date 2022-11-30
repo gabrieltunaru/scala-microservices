@@ -18,12 +18,12 @@ object DatabaseConnection {
     )
   }
 
-  def run(session: Resource[IO, Session[IO]]): IO[Unit] =
+  def run(using session: Resource[IO, Session[IO]]): IO[Unit] =
     session.use { s =>
-      for {
+      for
         d <- s.unique(sql"select current_date".query(date))
         _ <- IO.println(s"The current date is $d.")
-      } yield IO.unit
+      yield ()
     }
 
 }

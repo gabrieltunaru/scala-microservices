@@ -1,7 +1,6 @@
-package com.cannondev.business.requestModels
+package com.cannondev.business.domain
 
 import java.time.LocalDateTime
-import java.util.UUID
 
 case class RequestEvent(
     name: String,
