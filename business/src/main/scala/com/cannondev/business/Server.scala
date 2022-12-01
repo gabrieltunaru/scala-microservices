@@ -14,11 +14,11 @@ import org.http4s.server.Router
 import org.slf4j.LoggerFactory
 import skunk.Session
 
-class AuthService(val cfg: AppConfig)(using session: Resource[IO, Session[IO]]):
+class Server(cfg: AppConfig)(using Resource[IO, Session[IO]]):
 
   private def logger = LoggerFactory.getLogger(this.getClass)
 
-  given AuthClient[IO] = AuthClient[IO]
+  given AuthClient[IO] = AuthClient[IO](cfg)
   given ProfileRepository[IO] = ProfileRepository[IO]
   given EventRepository[IO] = EventRepository[IO]
   given EventAlgebra[IO] = EventAlgebra[IO]
@@ -36,8 +36,4 @@ class AuthService(val cfg: AppConfig)(using session: Resource[IO, Session[IO]]):
       .use(_ => IO.never)
       .as(ExitCode.Success)
 
-  def start(): IO[ExitCode] = {
-    logger.info(s"Private key: ${cfg.publicKey}")
-    for httpS <- httpServer
-    yield httpS
-  }
+  def start(): IO[ExitCode] = httpServer

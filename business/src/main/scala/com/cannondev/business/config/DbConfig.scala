@@ -16,7 +16,7 @@ object DbConfig:
 
   final case class AppConfig(
       dbConfig: DatabaseConfig,
-      publicKey: String
+      authServerUrl: String
   )
 
   def dbConfig: ConfigValue[IO, DatabaseConfig] =
@@ -31,6 +31,6 @@ object DbConfig:
   def appConfig: ConfigValue[IO, AppConfig] =
     (
       dbConfig.as[DatabaseConfig],
-      env("PUBLIC_KEY").as[String].default("thisisapublickey")
+      env("AUTH_SERVER_URL").as[String].default("http://localhost:8080")
     ).parMapN(AppConfig.apply)
 

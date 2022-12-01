@@ -13,16 +13,15 @@ import cats.effect.kernel.Resource
 object Main extends IOApp:
 
 
-  val myApp: IO[Unit] = for
+  private val myApp: IO[Unit] = for
     cfg <- DbConfig.appConfig.load[IO]
 
     given Resource[IO, Session[IO]] = DatabaseConnection.getSession(cfg.dbConfig)
     _ <- DatabaseConnection.run
     _ <- DBMigration.migrate[IO](cfg.dbConfig)
 
-    service = AuthService(cfg)
-    httpServer <- IO.pure(service.start())
-    _ <- httpServer
+    server = Server(cfg)
+    _ <- server.start()
   yield ()
 
   def run(args: List[String]): IO[ExitCode] = {
