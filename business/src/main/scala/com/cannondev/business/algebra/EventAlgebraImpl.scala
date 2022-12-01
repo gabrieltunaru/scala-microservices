@@ -19,7 +19,7 @@ class EventAlgebraImpl[F[_]: Async](using
 
   def insert(event: RequestEvent, token: String): F[String] = for
     userId <- authClient.getUserId(token)
-    profileO <- profileAlgebra.find(userId)
+    profileO <- profileAlgebra.find(token)
     profile <- profileO.orRaise(UserNotFound(userId))
     eventModel = EventModel(
       name = event.name,
