@@ -1,4 +1,4 @@
-package com.cannondev.business.storage.daos
+package com.cannondev.business.storage.daos.event
 
 import cats.effect.Concurrent
 import com.cannondev.business.domain.RequestProfile

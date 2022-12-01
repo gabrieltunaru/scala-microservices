@@ -2,7 +2,7 @@ package com.cannondev.business.routes
 
 import cats.effect.Async
 import org.http4s.Status
-import cats.implicits.*
+import cats.implicits.{catsSyntaxApplicativeError, toFlatMapOps, toFunctorOps}
 import cats.effect.implicits.*
 import com.cannondev.business.errors.*
 import com.cannondev.business.errors.ErrorCode.*

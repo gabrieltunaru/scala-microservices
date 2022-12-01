@@ -1,6 +1,7 @@
 package com.cannondev.business.config
 
-import cats.implicits._
+import cats.implicits.{catsSyntaxApplicativeError, toFlatMapOps, toFunctorOps}
+import cats.syntax.parallel.*
 import cats.effect.IO
 import ciris._
 

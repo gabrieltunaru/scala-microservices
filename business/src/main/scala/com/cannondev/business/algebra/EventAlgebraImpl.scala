@@ -1,13 +1,14 @@
 package com.cannondev.business.algebra
 
 import cats.effect.Async
+import cats.implicits.{catsSyntaxApplicativeError, toFlatMapOps, toFunctorOps}
 import com.cannondev.business.domain.RequestEvent
-import com.cannondev.business.storage.daos.{EventModel, EventRepository, ProfileRepository}
-import com.cannondev.business.util.AuthClient
-import org.slf4j.LoggerFactory
-import cats.implicits.*
 import com.cannondev.business.errors.UserNotFound
+import com.cannondev.business.storage.daos.event.{EventModel, EventRepository}
+import com.cannondev.business.storage.daos.profile.ProfileRepository
+import com.cannondev.business.util.AuthClient
 import com.cannondev.business.util.OptionUtil.*
+import org.slf4j.LoggerFactory
 
 class EventAlgebraImpl[F[_]: Async](using
     profileRepository: ProfileRepository[F],

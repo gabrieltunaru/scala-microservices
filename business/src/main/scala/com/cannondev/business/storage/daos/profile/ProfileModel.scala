@@ -1,4 +1,4 @@
-package com.cannondev.business.storage.daos
+package com.cannondev.business.storage.daos.profile
 
 import java.util.UUID
 

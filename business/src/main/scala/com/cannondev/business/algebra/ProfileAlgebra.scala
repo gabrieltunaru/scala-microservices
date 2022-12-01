@@ -1,10 +1,11 @@
 package com.cannondev.business.algebra
 
 import cats.effect.Async
-import cats.implicits.*
+import cats.implicits.{catsSyntaxApplicativeError, toFlatMapOps, toFunctorOps}
 import com.cannondev.business.domain.RequestProfile
 import com.cannondev.business.storage.daos.*
 import com.cannondev.business.storage.*
+import com.cannondev.business.storage.daos.profile.{ProfileModel, ProfileRepository}
 import com.cannondev.business.util.AuthClient
 import org.slf4j.LoggerFactory
 

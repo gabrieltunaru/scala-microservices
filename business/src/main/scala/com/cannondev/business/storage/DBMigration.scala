@@ -1,7 +1,7 @@
 package com.cannondev.business.storage
 
 import cats.effect.Sync
-import cats.implicits.*
+import cats.implicits.{catsSyntaxApplicativeError, toFlatMapOps, toFunctorOps}
 import org.flywaydb.core.api.configuration.FluentConfiguration
 import org.flywaydb.core.api.Location
 import org.flywaydb.core.Flyway

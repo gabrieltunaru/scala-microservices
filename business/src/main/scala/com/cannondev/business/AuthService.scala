@@ -6,7 +6,8 @@ import com.cannondev.business.algebra.{EventAlgebra, ProfileAlgebra}
 import com.cannondev.business.config.DbConfig.{AppConfig, DatabaseConfig}
 import com.cannondev.business.routes.Routes
 import com.cannondev.business.storage.DatabaseConnection
-import com.cannondev.business.storage.daos.{EventRepository, ProfileRepository}
+import com.cannondev.business.storage.daos.event.EventRepository
+import com.cannondev.business.storage.daos.profile.ProfileRepository
 import com.cannondev.business.util.AuthClient
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.Router

@@ -36,7 +36,7 @@ lazy val root = (project in file("."))
       "com.github.jwt-scala" %% "jwt-circe" % "9.0.5"
     ),
     testFrameworks += new TestFramework("munit.Framework"),
-    scalacOptions += "-Ywarn-unused-import"
+    scalacOptions += "-new-syntax"
   )
 
 Compile / mainClass := Some("com.cannondev.business.Main")
