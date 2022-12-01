@@ -28,7 +28,8 @@ trait UserAlgebra[F[_]]:
 
 object UserAlgebra:
   def apply[F[_]](using
-      session: Resource[F, Session[F]],
-      cfg: AppConfig,
-      F: Async[F]
-  ): UserAlgebra[F] = UserAlgebraImpl()
+      Resource[F, Session[F]],
+      AppConfig,
+      Async[F],
+      UserRepository[F]
+  ): UserAlgebra[F] = UserAlgebraImpl[F]

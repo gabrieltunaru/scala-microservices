@@ -24,7 +24,8 @@ import com.cannondev.authscala3.util.OptionUtil._
 class UserAlgebraImpl[F[_]](using
     session: Resource[F, Session[F]],
     cfg: AppConfig,
-    F: Async[F]
+    F: Async[F],
+    userRepository: UserRepository[F]
 ) extends UserAlgebra[F]:
 
   private def checkPassword(
@@ -49,8 +50,8 @@ class UserAlgebraImpl[F[_]](using
       username = credentials.username,
       password = pwHash
     )
-    _ <- UserRepository().insert(userWithHashedPassword)
-    insertedUserO <- UserRepository().find(credentials.username)
+    _ <- userRepository.insert(userWithHashedPassword)
+    insertedUserO <- userRepository.find(credentials.username)
     insertedUser: UserModel <- insertedUserO match {
       case Some(value) => F.pure(value)
       case None        => F.raiseError(UserNotFound(credentials.username))
@@ -60,7 +61,7 @@ class UserAlgebraImpl[F[_]](using
   )
 
   def login(credentials: User): F[Token] = for
-    dbUserO <- UserRepository().find(credentials.username)
+    dbUserO <- userRepository.find(credentials.username)
     passwordResult <- checkPassword(credentials, dbUserO)
     dbUser <- dbUserO.orElse(UserNotFound(credentials.username))
   yield Token(

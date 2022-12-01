@@ -5,6 +5,7 @@ import com.cannondev.authscala3.config.DbConfig.{AppConfig, DatabaseConfig}
 import com.cannondev.authscala3.storage.DatabaseConnection
 import com.cannondev.authscala3.algebra.UserAlgebra
 import com.cannondev.authscala3.routes.Routes
+import com.cannondev.authscala3.storage.daos.UserRepository
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.Router
 import org.slf4j.LoggerFactory
@@ -16,6 +17,7 @@ class AuthService(cfg: AppConfig)(using session: Resource[IO, Session[IO]]):
 
   given AppConfig = cfg
 
+  given UserRepository[IO] = UserRepository[IO]
   given UserAlgebra[IO] = UserAlgebra[IO]
   private val routes = Routes[IO]
 
