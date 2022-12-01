@@ -33,8 +33,6 @@ class AuthService(cfg: AppConfig)(using session: Resource[IO, Session[IO]]):
       .use(_ => IO.never)
       .as(ExitCode.Success)
 
-  def start(): IO[ExitCode] = {
-    logger.info(s"Private key: ${cfg.hasingPrivateKey}")
+  def start(): IO[ExitCode] =
     for httpS <- httpServer
     yield httpS
-  }
